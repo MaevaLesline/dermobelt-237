@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DERMOBELT 237</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#0a192f;color:#fff;min-height:100vh}
+.page{display:none;padding:16px}
+.page.active{display:block}
+
+.login{text-align:center;padding-top:60px}
+.login .logo{width:100px;height:100px;border-radius:50%;background:#0ea5e9;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 0 30px #0ea5e9}
+.login h1{font-size:24px;margin-bottom:8px}
+.login p{color:#94a3b8;font-size:14px;margin-bottom:40px}
+.btn{display:block;width:100%;max-width:300px;margin:10px auto;padding:16px;border-radius:12px;border:none;font-size:16px;font-weight:bold;cursor:pointer;color:#fff}
+.btn-blue{background:#0ea5e9}
+.btn-green{background:#22c55e}
+.btn-orange{background:#f97316}
+.btn-red{background:#ef4444}
+
+.header{background:#112240;padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0}
+.header button{background:#1d3557;border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+.header h2{font-size:16px;flex:1}
+
+.card{background:#112240;border:1px solid #1e3a5f;border-radius:12px;padding:16px;margin-bottom:12px}
+.card h3{font-size:14px;color:#94a3b8;margin-bottom:8px;text-transform:uppercase}
+.card .big{font-size:28px;font-weight:bold}
+.card .small{font-size:12px;color:#94a3b8}
+
+.progress{height:10px;background:#1d3557;border-radius:5px;margin:10px 0;overflow:hidden}
+.progress-bar{height:100%;background:#0ea5e9;border-radius:5px;transition:width 0.3s}
+.progress-bar.orange{background:#f97316}
+.progress-bar.green{background:#22c55e}
+
+.halo{width:180px;height:180px;border-radius:50%;border:4px solid #0ea5e9;margin:20px auto;display:flex;align-items:center;justify-content:center;animation:pulse 2s infinite;text-align:center}
+.halo.orange{border-color:#f97316;animation:none;box-shadow:0 0 30px #f97316}
+.halo.green{border-color:#22c55e;animation:none;box-shadow:0 0 30px #22c55e}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.halo-inner{background:#0a192f;width:140px;height:140px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.halo-temp{font-size:32px;font-weight:bold}
+.halo-status{font-size:12px;color:#94a3b8}
+
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e3a5f}
+.row:last-child{border:none}
+.row span:first-child{color:#94a3b8;font-size:13px}
+.row span:last-child{font-weight:bold;font-size:14px}
+.row .good{color:#22c55e}
+.row .warn{color:#f97316}
+.row .bad{color:#ef4444}
+
+.alert{padding:12px;border-radius:8px;margin-bottom:8px;border-left:3px solid}
+.alert.critical{border-color:#ef4444;background:rgba(239,68,68,0.1)}
+.alert.warning{border-color:#f97316;background:rgba(249,115,22,0.1)}
+.alert.info{border-color:#0ea5e9;background:rgba(14,165,233,0.1)}
+.alert h4{font-size:13px;margin-bottom:4px}
+.alert p{font-size:12px;color:#94a3b8}
+.alert .time{font-size:10px;color:#64748b;margin-top:4px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:bold;margin-top:6px}
+.badge.critical{background:#ef4444;color:#fff}
+.badge.warning{background:#f97316;color:#fff}
+.badge.info{background:#0ea5e9;color:#fff}
+
+.patient{display:flex;gap:12px;align-items:center;padding:12px;background:#112240;border-radius:12px;margin-bottom:8px;cursor:pointer}
+.patient-avatar{width:44px;height:44px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px}
+.patient-avatar.alert{background:#ef4444}
+.patient-avatar.offline{background:#64748b}
+.patient-info{flex:1}
+.patient-info h4{font-size:14px}
+.patient-info p{font-size:11px;color:#94a3b8}
+.patient-metrics{display:flex;gap:6px;margin-top:4px}
+.patient-metrics span{font-size:10px;padding:2px 6px;background:#1d3557;border-radius:4px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
+.status-dot.alert{background:#ef4444;animation:blink 1s infinite}
+.status-dot.offline{background:#64748b}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#112240;border-top:1px solid #1e3a5f;display:flex;justify-content:space-around;padding:8px 0}
+.bottom-nav button{background:none;border:none;color:#94a3b8;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 12px}
+.bottom-nav button.active{color:#0ea5e9}
+.bottom-nav button .icon{font-size:20px}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(100px);background:#112240;border:1px solid #1e3a5f;padding:12px 20px;border-radius:10px;transition:transform 0.3s;z-index:1000;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="pageLogin" class="page active login">
+<div class="logo">&#9829;</div>
+<h1>DERMOBELT 237</h1>
+<p>Precision Dermatology<br>for Melanodermic Skin</p>
+<button class="btn btn-blue" onclick="showPage('doctor')">&#128104;&#8205;&#9877;&#65039; Dashboard Médecin</button>
+<button class="btn btn-green" onclick="showPage('patient')">&#128100; Espace Patient</button>
+</div>
+
+<div id="pageDoctor" class="page">
+<div class="header">
+<button onclick="showPage('login')">&#8592; Retour</button>
+<h2>&#9829; DERMOBELT 237</h2>
+</div>
+<div style="padding:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+<div class="card"><h3>Patients Actifs</h3><div class="big">47</div><div class="small" style="color:#22c55e">+12% ce mois</div></div>
+<div class="card"><h3>Cycles Complétés</h3><div class="big">1,284</div><div class="small" style="color:#22c55e">+8.3%</div></div>
+<div class="card"><h3>Alertes Niv.2</h3><div class="big">5</div><div class="small" style="color:#f97316">-2</div></div>
+<div class="card"><h3>Alertes Critiques</h3><div class="big" style="color:#ef4444">1</div><div class="small" style="color:#ef4444">URGENT</div></div>
+</div>
+
+<h3 style="margin-bottom:10px;font-size:14px">&#126; Bio-impédance (50 kHz)</h3>
+<div class="card">
+<div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;gap:8px">
+<div style="text-align:center;flex:1"><div style="height:70%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">210<br>00h</div></div>
+<div style="text-align:center;flex:1"><div style="height:68%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">205<br>04h</div></div>
+<div style="text-align:center;flex:1"><div style="height:66%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">198<br>08h</div></div>
+<div style="text-align:center;flex:1"><div style="height:73%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">220<br>12h</div></div>
+<div style="text-align:center;flex:1"><div style="height:72%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">215<br>16h</div></div>
+<div style="text-align:center;flex:1"><div style="height:69%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">208<br>20h</div></-size:10px;color:#64748b;margin-top:4px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:bold;margin-top:6px}
+.badge.critical{background:#ef4444;color:#fff}
+.badge.warning{background:#f97316;color:#fff}
+.badge.info{background:#0ea5e9;color:#fff}
+
+.patient{display:flex;gap:12px;align-items:center;padding:12px;background:#112240;border-radius:12px;margin-bottom:8px;cursor:pointer}
+.patient-avatar{width:44px;height:44px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px}
+.patient-avatar.alert{background:#ef4444}
+.patient-avatar.offline{background:#64748b}
+.patient-info{flex:1}
+.patient-info h4{font-size:14px}
+.patient-info p{font-size:11px;color:#94a3b8}
+.patient-metrics{display:flex;gap:6px;margin-top:4px}
+.patient-metrics span{font-size:10px;padding:2px 6px;background:#1d3557;border-radius:4px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
+.status-dot.alert{background:#ef4444;animation:blink 1s infinite}
+.status-dot.offline{background:#64748b}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#112240;border-top:1px solid #1e3a5f;display:flex;justify-content:space-around;padding:8px 0}
+.bottom-nav button{background:none;border:none;color:#94a3b8;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 12px}
+.bottom-nav button.active{color:#0ea5e9}
+.bottom-nav button .icon{font-size:20px}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(100px);background:#112240;border:1px solid #1e3a5f;padding:12px 20px;border-radius:10px;transition:transform 0.3s;z-index:1000;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="pageLogin" class="page active login">
+<div class="logo">&#9829;</div>
+<h1>DERMOBELT 237</h1>
+<p>Precision Dermatology<br>for Melanodermic Skin</p>
+<button class="btn btn-blue" onclick="showPage('doctor')">&#128104;&#8205;&#9877;&#65039; Dashboard Médecin</button>
+<button class="btn btn-green" onclick="showPage('patient')">&#128100; Espace Patient</button>
+</div>
+
+<div id="pageDoctor" class="page">
+<div class="header">
+<button onclick="showPage('login')">&#8592; Retour</button>
+<h2>&#9829; DERMOBELT 237</h2>
+</div>
+<div style="padding:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+<div class="card"><h3>Patients Actifs</h3><div class="big">47</div><div class="small" style="color:#22c55e">+12% ce mois</div></div>
+<div class="card"><h3>Cycles Complétés</h3><div class="big">1,284</div><div class="small" style="color:#22c55e">+8.3%</div></div>
+<div class="card"><h3>Alertes Niv.2</h3><div class="big">5</div><div class="small" style="color:#f97316">-2</div></div>
+<div class="card"><h3>Alertes Critiques</h3><div class="big" style="color:#ef4444">1</div><div class="small" style="color:#ef4444">URGENT</div></div>
+</div>
+
+<h3 style="margin-bottom:10px;font-size:14px">&#126; Bio-impédance (50 kHz)</h3>
+<div class="card">
+<div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;gap:8px">
+<div style="text-align:center;flex:1"><div style="height:70%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">210<br>00h</div></div>
+<div style="text-align:center;flex:1"><div style="height:68%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">205<br>04h</div></div>
+<div style="text-align:center;flex:1"><div style="height:66%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">198<br>08h</div></div>
+<div style="text-align:center;flex:1"><div style="height:73%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">220<br>12h</div></div>
+<div style="text-align:center;flex:1"><div style="height:72%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">215<br>16h</div></div>
+<div style="text-align:center;flex:1"><div style="height:69%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">208<br>20h</div></div>
+</div>
+</div>
+
+<h3 style="margin:16px 0 10px;font-size:14px">&#127777; Température Cutanée</h3>
+<div class="card">
+<div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;gap:8px">
+<div style="text-align:center;flex:1"><div style="height:30%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">36.5<br>00h</div></div>
+<div style="text-align:center;flex:1"><div style="height:34%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">36.7<br>04h</div></div>
+<div style="text-align:center;flex:1"><div style="height:60%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">38.0<br>08h</div></div>
+<div style="text-align:center;flex:1"><div style="height:60%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">38.0<br>12h</div></div>
+<div style="text-align:center;flex:1"><div style="height:58%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">37.9<br>16h</div></div>
+<div style="text-align:center;flex:1"><div style="height:50%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">37.5<br>20h</div></div>
+</div>
+</div>
+
+<h3 style="margin:16px 0 10px;font-size:14px">&#128276; Alertes IA — Triage</h3>
+<div class="alert critical">
+<h4>&#128657; Risque Rénal Détecté</h4>
+<p>Patient Fatou D. — Ca²⁺ sweat élevé (3.8 mmol/L). Risque de néphrolithiase.</p>
+<div class="time">Il y a 12 min</div>
+<span class="badge critical">URGENT — Niveau 1</span>
+</div>
+<div class="alert warning">
+<h4>&#9888; Absorption Faible</h4>
+<p>Patient Aïcha B. — Bio-impédance anormale (280 Ω). Vérifier adhésion du device.</p>
+<div class="time">Il y a 45 min</div>
+<span class="badge warning">ATTENTION — Niveau 2</span>
+</div>
+<div class="alert warning">
+<h4>&#9201; Cycle Incomplet</h4>
+<p>Patient Moussa T. — Interruption prématurée à 67%.</p>
+<div class="time">Il y a 1h 20min</div>
+<span class="badge warning">ATTENTION — Niveau 2</span>
+</div>
+<div class="alert info">
+<h4>&#128100; Nouveau Patient</h4>
+<p>Kofi A. enregistré. Premier cycle démarré à 08:30.</p>
+<div class="time">Il y a 2h</div>
+<span class="badge info">INFO — Niveau 3</span>
+</div>
+
+<h3 style="margin:16px 0 10px;font-size:14px">&#128100; Patients en Suivi</h3>
+<div class="patient" onclick="showToast('Détail patient — Aminata K.')">
+<div class="patient-avatar">AK</div>
+<div class="patient-info">
+<h4>Aminata K. <span style="font-weight:normal;color:#94a3b8">(32 ans)</span></h4>
+<p>Douala, CM • Psoriasis chronique</p>
+<div class="patient-metrics"><span>&#127777; 37.8°C</span><span>&#126; 198 Ω</span><span>&#10003; 94% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot"></div><div style="font-size:9px;color:#94a3b8">Actif</div></div>
+</div>
+<div class="patient" onclick="showToast('Détail patient — Jean K.')">
+<div class="patient-avatar">JK</div>
+<div class="patient-info">
+<h4>Jean K. <span style="font-weight:normal;color:#94a3b8">(28 ans)</span></h4>
+<p>Yaoundé, CM • Dermatite atopique</p>
+<div class="patient-metrics"><span>&#127777; 38.0°C</span><span>&#126; 245 Ω</span><span>&#10003; 89% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot"></div><div style="font-size:9px;color:#94a3b8">Actif</div></div>
+</div>
+<div class="patient" onclick="showToast('ALERTE — Fatou D. Risque rénal!')">
+<div class="patient-avatar alert">FD</div>
+<div class="patient-info">
+-size:10px;color:#64748b;margin-top:4px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:bold;margin-top:6px}
+.badge.critical{background:#ef4444;color:#fff}
+.badge.warning{background:#f97316;color:#fff}
+.badge.info{background:#0ea5e9;color:#fff}
+
+.patient{display:flex;gap:12px;align-items:center;padding:12px;background:#112240;border-radius:12px;margin-bottom:8px;cursor:pointer}
+.patient-avatar{width:44px;height:44px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px}
+.patient-avatar.alert{background:#ef4444}
+.patient-avatar.offline{background:#64748b}
+.patient-info{flex:1}
+.patient-info h4{font-size:14px}
+.patient-info p{font-size:11px;color:#94a3b8}
+.patient-metrics{display:flex;gap:6px;margin-top:4px}
+.patient-metrics span{font-size:10px;padding:2px 6px;background:#1d3557;border-radius:4px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
+.status-dot.alert{background:#ef4444;animation:blink 1s infinite}
+.status-dot.offline{background:#64748b}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#112240;border-top:1px solid #1e3a5f;display:flex;justify-content:space-around;padding:8px 0}
+.bottom-nav button{background:none;border:none;color:#94a3b8;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 12px}
+.bottom-nav button.active{color:#0ea5e9}
+.bottom-nav button .icon{font-size:20px}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(100px);background:#112240;border:1px solid #1e3a5f;padding:12px 20px;border-radius:10px;transition:transform 0.3s;z-index:1000;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="pageLogin" class="page active login">
+<div class="logo">&#9829;</div>
+<h1>DERMOBELT 237</h1>
+<p>Precision Dermatology<br>for Melanodermic Skin</p>
+<button class="btn btn-blue" onclick="showPage('doctor')">&#128104;&#8205;&#9877;&#65039; Dashboard Médecin</button>
+<button class="btn btn-green" onclick="showPage('patient')">&#128100; Espace Patient</button>
+</div>
+
+<div id="pageDoctor" class="page">
+<div class="header">
+<button onclick="showPage('login')">&#8592; Retour</button>
+<h2>&#9829; DERMOBELT 237</h2>
+</div>
+<div style="padding:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+<div class="card"><h3>Patients Actifs</h3><div class="big">47</div><div class="small" style="color:#22c55e">+12% ce mois</div></div>
+<div class="card"><h3>Cycles Complétés</h3><div class="big">1,284</div><div class="small" style="color:#22c55e">+8.3%</div></div>
+<div class="card"><h3>Alertes Niv.2</h3><div class="big">5</div><div class="small" style="color:#f97316">-2</div></div>
+<div class="card"><h3>Alertes Critiques</h3><div class="big" style="color:#ef4444">1</div><div class="small" style="color:#ef4444">URGENT</div></div>
+</div>
+
+<h3 style="margin-bottom:10px;font-size:14px">&#126; Bio-impédance (50 kHz)</h3>
+<div class="card">
+<div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;gap:8px">
+<div style="text-align:center;flex:1"><div style="height:70%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">210<br>00h</div></div>
+<div style="text-align:center;flex:1"><div style="height:68%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">205<br>04h</div></div>
+<div style="text-align:center;flex:1"><div style="height:66%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">198<br>08h</div></div>
+<div style="text-align:center;flex:1"><div style="height:73%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">220<br>12h</div></div>
+<div style="text-align:center;flex:1"><div style="height:72%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">215<br>16h</div></div>
+<div style="text-align:center;flex:1"><div style="height:69%;background:#0ea5e9;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">208<br>20h</div></div>
+</div>
+</div>
+
+<h3 style="margin:16px 0 10px;font-size:14px">&#127777; Température Cutanée</h3>
+<div class="card">
+<div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;gap:8px">
+<div style="text-align:center;flex:1"><div style="height:30%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">36.5<br>00h</div></div>
+<div style="text-align:center;flex:1"><div style="height:34%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">36.7<br>04h</div></div>
+<div style="text-align:center;flex:1"><div style="height:60%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">38.0<br>08h</div></div>
+<div style="text-align:center;flex:1"><div style="height:60%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">38.0<br>12h</div></div>
+<div style="text-align:center;flex:1"><div style="height:58%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">37.9<br>16h</div></div>
+<div style="text-align:center;flex:1"><div style="height:50%;background:#f97316;border-radius:4px"></div><div style="font-size:10px;color:#94a3b8;margin-top:4px">37.5<br>20h</div></div>
+</div>
+</div>
+
+<h3 style="margin:16px 0 10px;font-size:14px">&#128276; Alertes IA — Triage</h3>
+<div class="alert critical">
+<h4>&#128657; Risque Rénal Détecté</h4>
+<p>Patient Fatou D. — Ca²⁺ sweat élevé (3.8 mmol/L). Risque de néphrolithiase.</p>
+<div class="time">Il y a 12 min</div>
+<span class="badge critical">URGENT — Niveau 1</span>
+</div>
+<div class="alert warning">
+<h4>&#9888; Absorption Faible</h4>
+<p>Patient Aïcha B. — Bio-impédance anormale (280 Ω). Vérifier adhésion du device.</p>
+<div class="time">Il y a 45 min</div>
+<span class="badge warning">ATTENTION — Niveau 2</span>
+</div>
+<div class="alert warning">
+<h4>&#9201; Cycle Incomplet</h4>
+<p>Patient Moussa T. — Interruption prématurée à 67%.</p>
+<div class="time">Il y a 1h 20min</div>
+<span class="badge warning">ATTENTION — Niveau 2</span>
+</div>
+<div class="alert info">
+<h4>&#128100; Nouveau Patient</h4>
+<p>Kofi A. enregistré. Premier cycle démarré à 08:30.</p>
+<div class="time">Il y a 2h</div>
+<span class="badge info">INFO — Niveau 3</span>
+</div>
+
+<h3 style="margin:16px 0 10px;font-size:14px">&#128100; Patients en Suivi</h3>
+<div class="patient" onclick="showToast('Détail patient — Aminata K.')">
+<div class="patient-avatar">AK</div>
+<div class="patient-info">
+<h4>Aminata K. <span style="font-weight:normal;color:#94a3b8">(32 ans)</span></h4>
+<p>Douala, CM • Psoriasis chronique</p>
+<div class="patient-metrics"><span>&#127777; 37.8°C</span><span>&#126; 198 Ω</span><span>&#10003; 94% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot"></div><div style="font-size:9px;color:#94a3b8">Actif</div></div>
+</div>
+<div class="patient" onclick="showToast('Détail patient — Jean K.')">
+<div class="patient-avatar">JK</div>
+<div class="patient-info">
+<h4>Jean K. <span style="font-weight:normal;color:#94a3b8">(28 ans)</span></h4>
+<p>Yaoundé, CM • Dermatite atopique</p>
+<div class="patient-metrics"><span>&#127777; 38.0°C</span><span>&#126; 245 Ω</span><span>&#10003; 89% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot"></div><div style="font-size:9px;color:#94a3b8">Actif</div></div>
+</div>
+<div class="patient" onclick="showToast('ALERTE — Fatou D. Risque rénal!')">
+<div class="patient-avatar alert">FD</div>
+<div class="patient-info">
+<h4>Fatou D. <span style="font-weight:normal;color:#94a3b8">(45 ans)</span></h4>
+<p>Dakar, SN • Lichen plan</p>
+<div class="patient-metrics"><span>&#127777; 39.2°C</span><span>&#126; 312 Ω</span><span>&#10007; 45% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot alert"></div><div style="font-size:9px;color:#ef4444">Alerte</div></div>
+</div>
+<div class="patient" onclick="showToast('Détail patient — Moussa T.')">
+<div class="patient-avatar">MT</div>
+<div class="patient-info">
+<h4>Moussa T. <span style="font-weight:normal;color:#94a3b8">(36 ans)</span></h4>
+<p>Abidjan, CI • Eczéma</p>
+<div class="patient-metrics"><span>&#127777; 37.9°C</span><span>&#126; 210 Ω</span><span>&#10003; 91% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot"></div><div style="font-size:9px;color:#94a3b8">Actif</div></div>
+</div>
+<div class="patient" onclick="showToast('Patient hors ligne — Aïcha B.')">
+<div class="patient-avatar offline">AB</div>
+<div class="patient-info">
+<h4>Aïcha B. <span style="font-weight:normal;color:#94a3b8">(41 ans)</span></h4>
+<p>Lagos, NG • Psoriasis</p>
+<div class="patient-metrics"><span>&#127777; 36.5°C</span><span>&#126; 280 Ω</span><span>&#10007; 0% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot offline"></div><div style="font-size:9px;color:#64748b">Hors ligne</div></div>
+</div>
+<div class="patient" onclick="showToast('Détail patient — Kofi A.')">
+<div class="patient-avatar">KA</div>
+<div class="patient-info">
+<h4>Kofi A. <span style="font-weight:normal;color:#94a3b8">(29 ans)</span></h4>
+<p>Accra, GH • Dermatite séborrhéique</p>
+<div class="patient-metrics"><span>&#127777; 38.1°C</span><span>&#126; 205 Ω</span><span>&#10003; 96% abs.</span></div>
+</div>
+<div style="text-align:center"><div class="status-dot"></div><div style="font-size:9px;color:#94a3b8">Actif</div></div>
+</div>
+</div>
+</div>
+
+<div id="pagePatient" class="page">
+<div class="header">
+<button onclick="showPage('login')">&#8592; Retour</button>
+<h2>Mon Traitement</h2>
+</div>
+<div style="padding:16px;padding-bottom:100px">
+<div style="text-align:center;padding:10px 0">
+<div style="font-size:14px;color:#94a3b8">Bonjour,</div>
+<div style="font-size:20px;font-weight:bold">Jean K. <span style="font-size:12px;color:#94a3b8">— Yaoundé, CM</span></div>
+</div>
+<div class="halo" id="haloRing">
+<div class="halo-inner">
+<div class="halo-temp"><span id="tempDisplay">36.5</span><span style="font-size:14px;color:#94a3b8">°C</span></div>
+<div class="halo-status" id="haloStatus">En attente</div>
+</div>
+</div>
+<div class="card">
+<h3>&#128293; Cycle Thermique</h3>
+<div class="progress"><div class="progress-bar" id="treatmentProgress" style="width:0%"></div></div>
+<div class="row"><span>Cible</span><span>38.0°C (±0.1°C)</span></div>
+<div class="row"><span>Durée</span><span id="durationDisplay">00:00</span></div>
+<div class="row"><span>Autonomie</span><span class="good">&#9889; Seebeck Active</span></div>
+</div>
+<div class="card">
+<h3>&#128170; Biométriques</h3>
+<div class="row"><span>Bio-impédance</span><span id="bioValue">245 Ω</span></div>
+<div class="row"><span>Hydratation</span><span class="good" id="hydrationValue">92%</span></div>
+<div class="row"><span>Ca²⁺ Sweat</span><span class="good" id="calciumValue">1.2 mmol/L</span></div>
+<div class="row"><span>Statut IA</span><span class="good">&#10003; Normal</span></div>
+</div>
+<button class="btn btn-blue" id="startBtn" onclick="startTreatment()" style="margin-top:16px">&#9654; Démarrer le Cycle</button>
+<button class="btn btn-green" id="successBtn" style="margin-top:16px;display:none">&#10003; Cycle Terminé — Absorption Confirmée</button>
+</div>
+<div class="bottom-nav">
+<button class="active"><span class="icon">&#127968;</span><span>Accueil</span></button>
+<button><span class="icon">&#128200;</span><span>Historique</span></button>
+<button><span class="icon">&#128172;</span><span>Médecin</span></button>
+<button><span class="icon">&#128100;</span><span>Profil</span></button>
+</div>
+</div>
+
+<div class="toast" id="toast">Message</div>
+
+<script>
+function showPage(page){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById('page'+page.charAt(0).toUpperCase()+page.slice(1)).classList.add('active');
+}
+function showToast(msg){
+var t=document.getElementById('toast');
+t.textContent=msg;
+t.classList.add('show');
+setTimeout(function(){t.classList.remove('show');},3000);
+}
+var treatmentRunning=false;
+var currentTemp=36.5;
+var progress=0;
+var seconds=0;
+var interval;
+function startTreatment(){
+if(treatmentRunning)return;
+treatmentRunning=true;
+var btn=document.getElementById('startBtn');
+var halo=document.getElementById('haloRing');
+var progressBar=document.getElementById('treatmentProgress');
+var tempDisplay=document.getElementById('tempDisplay');
+var status=document.getElementById('haloStatus');
+var duration=document.getElementById('durationDisplay');
+btn.textContent='Chargement...';
+btn.disabled=true;
+halo.style.borderColor='#3b82f6';
+status.textContent='Diagnostic en cours...';
+showToast('Diagnostic bio-impédance lancé');
+setTimeout(function(){
+halo.className='halo orange';
+status.textContent='Induction thermique 38°C';
+progressBar.className='progress-bar orange';
+showToast('Induction thermique active — 38°C');
+interval=setInterval(function(){
+progress+=1;
+seconds++;
+if(currentTemp<38.0)currentTemp=Math.min(38.0,currentTemp+0.08);
+tempDisplay.textContent=currentTemp.toFixed(1);
+progressBar.style.width=progress+'%';
+duration.textContent=formatTime(seconds);
+document.getElementById('bioValue').textContent=(240+Math.floor(Math.random()*20-10))+' Ω';
+if(progress>=100){
+clearInterval(interval);
+completeTreatment();
+}
+},80);
+},2000);
+}
+function completeTreatment(){
+var halo=document.getElementById('haloRing');
+var progressBar=document.getElementById('treatmentProgress');
+var status=document.getElementById('haloStatus');
+var btn=document.getElementById('startBtn');
+var successBtn=document.getElementById('successBtn');
+halo.className='halo green';
+status.textContent='Cycle terminé — Succès';
+progressBar.className='progress-bar green';
+btn.style.display='none';
+successBtn.style.display='block';
+document.getElementById('hydrationValue').textContent='96%';
+showToast('Cycle terminé — Absorption maximale confirmée');
+treatmentRunning=false;
+}
+function formatTime(s){
+var m=Math.floor(s/60);
+var sec=s%60;
+return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+}
+</script>
+</body>
+</html>
